@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "753980685233",
+    "firebase_url": "https://carryme-fde3d.firebaseio.com",
+    "project_id": "carryme-fde3d",
+    "storage_bucket": "carryme-fde3d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:753980685233:android:4e21ffded90f2074",
+        "android_client_info": {
+          "package_name": "com.yatinkaushal.carryme"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "753980685233-l753eahlqa7kni6aqd3ijv402ck6f23d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCt-dzYCrl5MTZW0pTbFhCgJ32614Zpvc4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "753980685233-l753eahlqa7kni6aqd3ijv402ck6f23d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
