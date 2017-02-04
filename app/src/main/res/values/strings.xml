@@ -9,4 +9,5 @@
     <string name="title_activity_login">LoginActivity</string>
     <string name="title_activity_main">MainActivity</string>
     <string name="web_client_id">753980685233-l753eahlqa7kni6aqd3ijv402ck6f23d.apps.googleusercontent.com</string>
+    <string name="carrier_needed">Carrier Needed!</string>
 </resources>

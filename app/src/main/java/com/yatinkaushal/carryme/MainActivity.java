@@ -8,11 +8,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -30,6 +30,23 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.yatinkaushal.carryme.adapters.FeedAdapter;
+import com.yatinkaushal.carryme.models.CarryTask;
+import com.yatinkaushal.carryme.models.User;
+
+import java.util.ArrayList;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -40,6 +57,13 @@ public class MainActivity extends AppCompatActivity
     private static final int RC_SIGN_IN = 9001;
     private GoogleApiClient mGoogleApiClient;
     ProgressDialog progressDialog;
+    private FirebaseDatabase database;
+    private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
+    private User mUser;
+    private RecyclerView recyclerView;
+    FeedAdapter feedAdapter;
+    private ArrayList<CarryTask> carryTasks = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,11 +72,31 @@ public class MainActivity extends AppCompatActivity
                 .requestIdToken("753980685233-l753eahlqa7kni6aqd3ijv402ck6f23d.apps.googleusercontent.com")
                 .requestEmail()
                 .build();
-
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
+        mAuth = FirebaseAuth.getInstance();
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                    // User is signed in
+                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+                    if (mUser != null) {
+                        createOrUpdateUserInDatabase(mUser);
+                        loadData();
+                        updateUI(mUser);
+                    }
+                } else {
+                    // User is signed out
+                    Log.d(TAG, "onAuthStateChanged:signed_out");
+                }
+                // ...
+            }
+        };
+        database = FirebaseDatabase.getInstance();
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Loading");
         progressDialog.setIndeterminate(true);
@@ -61,13 +105,19 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        feedAdapter = new FeedAdapter(this, carryTasks);
+        recyclerView.setAdapter(feedAdapter);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+                Intent intent = new Intent(MainActivity.this, AddTaskActivity.class);
+                intent.putExtra(Globals.USER, mUser);
+                startActivity(intent);
             }
         });
 
@@ -81,6 +131,40 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
     }
 
+    private void loadData() {
+        DatabaseReference reference = database.getReference(Globals.TASKS);
+        reference.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                CarryTask carryTask = dataSnapshot.getValue(CarryTask.class);
+                Log.d(TAG, carryTask.name);
+                carryTasks.add(0, carryTask);
+                feedAdapter.notifyItemInserted(0);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+
     private void signIn() {
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
         startActivityForResult(signInIntent, RC_SIGN_IN);
@@ -89,7 +173,24 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onResume() {
         super.onResume();
+        carryTasks.clear();
+        feedAdapter.notifyDataSetChanged();
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthListener);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener);
+        }
+    }
+
 
     @Override
     public void onBackPressed() {
@@ -138,6 +239,9 @@ public class MainActivity extends AppCompatActivity
                             finish();
                         }
                     });
+        } else {
+            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+            finish();
         }
     }
 
@@ -176,7 +280,8 @@ public class MainActivity extends AppCompatActivity
                 Log.d(TAG, "Success");
                 // Google Sign In was successful, authenticate with Firebase
                 GoogleSignInAccount account = result.getSignInAccount();
-                updateUI(account);
+                mUser = new User(account.getId(), account.getDisplayName(), account.getEmail(), account.getPhotoUrl().toString());
+                firebaseAuthWithGoogle(account);
             } else {
                 // Google Sign In failed, update UI appropriately
                 // ...
@@ -186,18 +291,48 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void updateUI(GoogleSignInAccount account) {
+    private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
+        Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
+
+        AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        Log.d(TAG, "signInWithCredential:onComplete:" + task.isSuccessful());
+
+                        // If sign in fails, display a message to the mUser. If sign in succeeds
+                        // the auth state listener will be notified and logic to handle the
+                        // signed in mUser can be handled in the listener.
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "signInWithCredential", task.getException());
+                            progressDialog.hide();
+                            Toast.makeText(MainActivity.this, "Authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+                            signOut();
+                        }
+                        // ...
+                    }
+                });
+    }
+
+    private void createOrUpdateUserInDatabase(User user) {
+        DatabaseReference reference = database.getReference();
+        reference.child(Globals.USERS).child(user.id).setValue(user);
+    }
+
+    private void updateUI(User account) {
         progressDialog.hide();
-        ((TextView) findViewById(R.id.text)).setText(account.getDisplayName());
+//        ((TextView) findViewById(R.id.text)).setText(account.getDisplayName());
         CircleImageView imageView = ((CircleImageView) findViewById(R.id.imageView));
         Glide
                 .with(this)
-                .load(account.getPhotoUrl())
+                .load(account.photoUrl)
                 .into(imageView);
         TextView textView = (TextView) findViewById(R.id.name);
-        textView.setText(account.getDisplayName());
+        textView.setText(account.name);
         TextView textView1 = (TextView) findViewById(R.id.textView);
-        textView1.setText(account.getEmail());
+        textView1.setText(account.email);
     }
 
     @Override
