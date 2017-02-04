@@ -2,6 +2,8 @@ package com.yatinkaushal.carryme;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -16,6 +18,7 @@ public class TaskDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_detail);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         CarryTask carryTask = getIntent().getParcelableExtra(Globals.TASK);
         ((TextView)findViewById(R.id.textView2)).setText(carryTask.username);
         ((TextView)findViewById(R.id.textView4)).setText(carryTask.description);
@@ -27,4 +30,18 @@ public class TaskDetailActivity extends AppCompatActivity {
                 .load(carryTask.userPhotoUrl)
                 .into(circleImageView);
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 }

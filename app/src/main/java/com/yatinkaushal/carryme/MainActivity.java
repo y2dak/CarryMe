@@ -10,6 +10,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -64,6 +65,7 @@ public class MainActivity extends AppCompatActivity
     private RecyclerView recyclerView;
     FeedAdapter feedAdapter;
     private ArrayList<CarryTask> carryTasks = new ArrayList<>();
+    SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,6 +108,15 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                carryTasks.clear();
+                feedAdapter.notifyDataSetChanged();
+                loadData();
+            }
+        });
         feedAdapter = new FeedAdapter(this, carryTasks);
         recyclerView.setAdapter(feedAdapter);
 
@@ -140,6 +151,9 @@ public class MainActivity extends AppCompatActivity
                 Log.d(TAG, carryTask.name);
                 carryTasks.add(0, carryTask);
                 feedAdapter.notifyItemInserted(0);
+                if (swipeRefreshLayout.isRefreshing()) {
+                    swipeRefreshLayout.setRefreshing(false);
+                }
             }
 
             @Override

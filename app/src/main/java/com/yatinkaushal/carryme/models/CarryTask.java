@@ -67,6 +67,6 @@ public class CarryTask implements Parcelable{
         parcel.writeString(userPhotoUrl);
         parcel.writeString(description);
         parcel.writeString(id);
-        parcel.writeLong(date.getTime());
+        if (date != null) parcel.writeLong(date.getTime());
     }
 }

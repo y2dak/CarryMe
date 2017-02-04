@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,7 @@ import com.yatinkaushal.carryme.TaskDetailActivity;
 import com.yatinkaushal.carryme.models.CarryTask;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -46,11 +48,54 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
                 .into(holder.circleImageView);
         holder.username.setText(tasks.get(position).username);
         holder.description.setText(tasks.get(position).description);
+        holder.timestamp.setText(timeSince(tasks.get(position).date));
     }
 
     @Override
     public int getItemCount() {
         return tasks.size();
+    }
+
+    private String timeSince(Date date) {
+        String TAG = "FeedAdapter";
+        if (date == null) return "just now";
+        long seconds = (new Date().getTime() - date.getTime()) / 1000;
+        long interval = seconds / 31536000;
+        Log.d(TAG, "1:" + String.valueOf(interval));
+        if (interval > 1) {
+            return interval + " years ago";
+        } else if(interval == 1) {
+            return "1 year ago";
+        }
+        interval = seconds / 2592000;
+        Log.d(TAG, "2:" + String.valueOf(interval));
+        if (interval > 1) {
+            return interval + " months ago";
+        } else if (interval == 1) {
+            return "1 month ago";
+        }
+        interval = seconds / 86400;
+        Log.d(TAG, "3:" + String.valueOf(interval));
+        if (interval > 1) {
+            return interval + " days ago";
+        } else if (interval == 1) {
+            return "1 day ago";
+        }
+        interval = seconds / 3600;
+        Log.d(TAG, "4:" + String.valueOf(interval));
+        if (interval > 1) {
+            return interval + " hours ago";
+        } else if (interval == 1){
+            return "1 hour ago";
+        }
+        interval = seconds / 60;
+        Log.d(TAG, "5:" + String.valueOf(interval));
+        if (interval > 1) {
+            return interval + " minutes ago";
+        } else if (interval == 1) {
+            return "1 minute ago";
+        }
+        return "just now";
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder{
@@ -59,13 +104,14 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
         CircleImageView circleImageView;
         TextView username;
         TextView description;
-
+        TextView timestamp;
 
         public ViewHolder(View itemView) {
             super(itemView);
             name = (TextView)itemView.findViewById(R.id.textView);
             username = (TextView) itemView.findViewById(R.id.textView5);
             description = (TextView) itemView.findViewById(R.id.textView6);
+            timestamp = (TextView) itemView.findViewById(R.id.textView7);
             circleImageView = (CircleImageView) itemView.findViewById(R.id.imageView);
             cardView = (CardView) itemView.findViewById(R.id.cardView);
             cardView.setOnClickListener(new View.OnClickListener() {
