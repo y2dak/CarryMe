@@ -22,9 +22,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".AddTaskActivity" />
+        <activity android:name=".AddTaskActivity"
+            android:label="@string/add_task"/>
         <activity android:name=".TaskDetailActivity"
-            android:label="@string/carrier_needed"></activity>
+            android:label="@string/carrier_needed"/>
     </application>
 
 </manifest>
