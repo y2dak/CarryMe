@@ -30,6 +30,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         setContentView(R.layout.activity_login);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+//        toolbar.setVisibility(View.GONE);
+        getSupportActionBar().setTitle("");
 
         SharedPreferences sharedPreferences = getSharedPreferences(Globals.packagePath, Context.MODE_PRIVATE);
         boolean loggedIn = sharedPreferences.getBoolean(Globals.loggedIn, false);

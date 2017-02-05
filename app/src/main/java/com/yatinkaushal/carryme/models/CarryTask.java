@@ -20,16 +20,18 @@ public class CarryTask implements Parcelable{
     public String description;
     public String id;
     public Date date;
+    public String reward;
 
     public CarryTask() {}
 
-    public CarryTask(String name, String userId, String username, String userPhotoUrl, String description) {
+    public CarryTask(String name, String userId, String username, String userPhotoUrl, String description, String reward) {
         this.name = name;
         this.userId = userId;
         this.username = username;
         this.userPhotoUrl = userPhotoUrl;
         this.description = description;
         this.date = new Date();
+        this.reward = reward;
     }
 
     protected CarryTask(Parcel in) {
@@ -40,6 +42,7 @@ public class CarryTask implements Parcelable{
         description = in.readString();
         id = in.readString();
         date = new Date(in.readLong());
+        reward = in.readString();
     }
 
     public static final Creator<CarryTask> CREATOR = new Creator<CarryTask>() {
@@ -67,6 +70,7 @@ public class CarryTask implements Parcelable{
         parcel.writeString(userPhotoUrl);
         parcel.writeString(description);
         parcel.writeString(id);
-        if (date != null) parcel.writeLong(date.getTime());
+        parcel.writeLong(date.getTime());
+        parcel.writeString(reward);
     }
 }
