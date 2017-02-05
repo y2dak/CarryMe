@@ -23,6 +23,7 @@ public class TaskDetailActivity extends AppCompatActivity {
         ((TextView)findViewById(R.id.textView2)).setText(carryTask.username);
         ((TextView)findViewById(R.id.textView4)).setText(carryTask.description);
         ((TextView)findViewById(R.id.textView3)).setText(carryTask.name);
+        ((TextView)findViewById(R.id.textView9)).setText("Reward: " + carryTask.reward);
         Button button = (Button) findViewById(R.id.button3);
         button.setText("Carry " + carryTask.username);
         CircleImageView circleImageView = (CircleImageView) findViewById(R.id.imageView);

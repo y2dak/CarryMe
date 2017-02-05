@@ -28,13 +28,14 @@ public class AddTaskActivity extends AppCompatActivity {
         database = FirebaseDatabase.getInstance();
         final EditText nameTxt = (EditText) findViewById(R.id.editText);
         final EditText descriptionTxt = (EditText) findViewById(R.id.editText2);
+        final EditText rewardTxt = (EditText) findViewById(R.id.editText3);
         Button carryMe = (Button) findViewById(R.id.button2);
         carryMe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (nameTxt.getText().toString().trim().length() != 0 && descriptionTxt.getText().toString().trim().length() != 0) {
+                if (nameTxt.getText().toString().trim().length() != 0 && descriptionTxt.getText().toString().trim().length() != 0 && rewardTxt.getText().toString().trim().length() != 0) {
                     DatabaseReference reference = database.getReference();
-                    CarryTask carryTask = new CarryTask(nameTxt.getText().toString(), mUser.id, mUser.name, mUser.photoUrl, descriptionTxt.getText().toString());
+                    CarryTask carryTask = new CarryTask(nameTxt.getText().toString(), mUser.id, mUser.name, mUser.photoUrl, descriptionTxt.getText().toString(), rewardTxt.getText().toString());
                     DatabaseReference reference1 = reference.child(Globals.TASKS).push();
                     carryTask.id = reference1.getKey();
                     reference1.setValue(carryTask);
