@@ -2,6 +2,8 @@ package com.yatinkaushal.carryme.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,6 +13,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.yatinkaushal.carryme.Globals;
+import com.yatinkaushal.carryme.MainActivity;
 import com.yatinkaushal.carryme.R;
 import com.yatinkaushal.carryme.TaskDetailActivity;
 import com.yatinkaushal.carryme.models.CarryTask;
@@ -112,7 +115,13 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
                 public void onClick(View view) {
                     Intent intent = new Intent(context, TaskDetailActivity.class);
                     intent.putExtra(Globals.TASK, tasks.get(getAdapterPosition()));
-                    context.startActivity(intent);
+                    ActivityOptionsCompat options = ActivityOptionsCompat.
+                            makeSceneTransitionAnimation(((MainActivity)context), (View)circleImageView, "image");
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                        context.startActivity(intent, options.toBundle());
+                    } else {
+                        context.startActivity(intent);
+                    }
                 }
             });
         }

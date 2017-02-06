@@ -43,6 +43,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.yatinkaushal.carryme.adapters.FeedAdapter;
 import com.yatinkaushal.carryme.models.CarryTask;
 import com.yatinkaushal.carryme.models.User;
@@ -66,6 +67,7 @@ public class MainActivity extends AppCompatActivity
     FeedAdapter feedAdapter;
     private ArrayList<CarryTask> carryTasks = new ArrayList<>();
     SwipeRefreshLayout swipeRefreshLayout;
+    private boolean firstTime = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,10 +88,13 @@ public class MainActivity extends AppCompatActivity
                 if (user != null) {
                     // User is signed in
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
-                    if (mUser != null) {
+                    if (mUser != null && firstTime) {
                         createOrUpdateUserInDatabase(mUser);
+//                        carryTasks.clear();
+//                        feedAdapter.notifyDataSetChanged();
                         loadData();
                         updateUI(mUser);
+                        firstTime = false;
                     }
                 } else {
                     // User is signed out
@@ -140,6 +145,7 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        Log.d(TAG, FirebaseInstanceId.getInstance().getToken());
     }
 
     private void loadData() {
@@ -187,8 +193,8 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onResume() {
         super.onResume();
-        carryTasks.clear();
-        feedAdapter.notifyDataSetChanged();
+//        carryTasks.clear();
+//        feedAdapter.notifyDataSetChanged();
     }
 
     @Override
